@@ -29,10 +29,8 @@ from blockchain_parser.blockchain import Blockchain
 import math
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import pandas as pd  
+import pandas as pd   
 
-def is_ascii_text(op):
-    return all(32 <= x <= 127 for x in op)    
 
 #histogram for each chunk bytes
 def saveGraph(fileName, xlabelName, countFileChunk):
@@ -78,7 +76,7 @@ def saveGraphAM(fileName, xlabelName, countFileChunk):
     ax.get_xaxis().tick_bottom()  
     ax.get_yaxis().tick_left()  
     #plt.xticks(fontsize=14)
-    plt.xticks(range(0, 250, 50)), fontsize=14)
+    plt.xticks(range(0, 250, 50), fontsize=14)
     plt.yticks( fontsize=14)
     
     with open(fileName, 'r') as file1:
@@ -104,11 +102,11 @@ blockchain = Blockchain(os.path.expanduser('~/snap/bitcoin-core/common/.bitcoin/
 bitcoinlocalpath = '/home/aagiron/snap/bitcoin-core/common/.bitcoin/blocks'
 
 #Initial file names
-LSBytesFileName = "extracted/LSBytesFromEveryNonce_FullBlockchainChunk0.data"
-Bytes1FileName = "extracted/Bytes1FromEveryNonce_FullBlockchainChunk0.data"
-Bytes2FileName = "extracted/Bytes2FromEveryNonce_FullBlockchainChunk0.data"
-MSBytesFileName = "extracted/MSBytesFromEveryNonce_FullBlockchainChunk0.data"
-AM_fileName = "extracted/AM_Chunk0.txt"
+LSBytesFileName = "extracted/LSBytesFromEveryNonce_FullBlockchainChunk1.data"
+Bytes1FileName = "extracted/Bytes1FromEveryNonce_FullBlockchainChunk1.data"
+Bytes2FileName = "extracted/Bytes2FromEveryNonce_FullBlockchainChunk1.data"
+MSBytesFileName = "extracted/MSBytesFromEveryNonce_FullBlockchainChunk1.data"
+AM_fileName = "extracted/AM_Chunk1.txt"
 
 #open files
 arqLSBytes = open(LSBytesFileName, 'ab')
@@ -119,13 +117,15 @@ arqArithmeticMean = open(AM_fileName, 'a')
 
 blockNumber = -1
 countChunks = 1
+chunkSize = 0
 byte = 0
 
-#default: data analyzed by semesters (6 months, except the first, which is 7). See variable t2.
-chunkTimeDivision = 6
+#default: data analyzed by semesters (6 months). See variable t2.
+chunkDivision = 6
 chunkTimestamp = "03/01/2009 00:00:00" #first chunk
+lastBlockTimestamp = "03/01/2009 00:00:00"
 #start of the second chunk
-t2 = datetime.strptime(chunkTimestamp, "%d/%m/%Y %H:%M:%S") + relativedelta(months=+chunkTimeDivision)
+t2 = datetime.strptime(chunkTimestamp, "%d/%m/%Y %H:%M:%S") + relativedelta(months=+chunkDivision)
 
 #print ("Block count number ; Nonce Arithmetic Mean ; Nonce Shannon Entropy; Nonce Relative Abs Entropy ; LSByte(hex) ; LSByte ; MSB ; Nonce Value")
 
@@ -139,9 +139,9 @@ for block in blockchain.get_ordered_blocks(bitcoinlocalpath + '/index', start=0)
     
     #if block timestamp greater than chunk start, save that chunk and change the filenames for the next.
     if (t1 >= t2):
-        print("Last block of the chunk(",countChunks,"):", blockNumber, "; Timestamp:", block.header.timestamp)
+        print("Last block of the chunk(",countChunks,"):", blockNumber-1, "; Timestamp:", lastBlockTimestamp, "; Size:", chunkSize)
         
-        t2 = t2 + relativedelta(months=+chunkTimeDivision)
+        t2 = t2 + relativedelta(months=+chunkDivision)
         print("New chunk is from:", block.header.timestamp, " to:", t2)
 
         #close chunk files
@@ -160,6 +160,7 @@ for block in blockchain.get_ordered_blocks(bitcoinlocalpath + '/index', start=0)
 
 
         countChunks = countChunks + 1
+        chunkSize = 0
         #Change file names for next chunk
         LSBytesFileName = "extracted/LSBytesFromEveryNonce_FullBlockchainChunk"+str(countChunks) +".data"
         Bytes1FileName = "extracted/Bytes1FromEveryNonce_FullBlockchainChunk"+str(countChunks) +".data"
@@ -175,8 +176,8 @@ for block in blockchain.get_ordered_blocks(bitcoinlocalpath + '/index', start=0)
         arqArithmeticMean = open(AM_fileName, 'a')
 
     #Get the Nonce from the Header
-    header = block.header
-    nonce = header.nonce
+    nonce  = block.header.nonce
+    
     #extranonce is not fixed; is dependent on the mining software. Skip.
 
     byte0 = nonce & 0xFF                #LSByte
@@ -196,6 +197,10 @@ for block in blockchain.get_ordered_blocks(bitcoinlocalpath + '/index', start=0)
     arqBytes2.write(byte2.to_bytes(1, byteorder = 'little'))
     arqMSBytes.write(MSByte)
 
+    lastBlockTimestamp = block.header.timestamp
+    chunkSize = chunkSize + block.size
+
+
 #save the remaining chunk data
 #close chunk files
 arqLSBytes.close()
@@ -212,5 +217,6 @@ saveGraph(MSBytesFileName, "MSByte Values", countChunks)
 saveGraphAM(AM_fileName, "Nonce Arithmetic Mean", countChunks)  
 
 #end
-print("End of processing Nonces. Last chunk:", countChunks, ", Last block:", blockNumber)
+print("End of processing Nonces. Last chunk:", countChunks, ", Size:", chunkSize ,". Last block:", blockNumber, ", Timestamp:",lastBlockTimestamp)
+
 
