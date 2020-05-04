@@ -15,7 +15,7 @@
 # This is an attempt on steganography investigation in the nonces of the bitcoin blockchain.
 # Run it with python3 NonceAnalysis.py
 # It checks the nonce of a block, extracting bytes (like LSByte) of nonces
-# For each chunk it creates histogram for the nonce bytes.
+# For each chunk it creates a histogram for the nonce bytes.
 # After extracted, a file carving tool can be used (like scalpel) to see if there is something hidden in nonces.
 # Requirements: Must have the bitcoin blocks. Must have the bitcoin-parser library from: https://github.com/alecalve/python-bitcoin-blockchain-parser
 
@@ -88,8 +88,6 @@ def saveGraphAM(fileName, xlabelName, countFileChunk):
     plt.xlabel(xlabelName, fontsize=16) #, fontsize=25
 
     plt.ylabel("Frequency", fontsize=16)
-    #plt.grid(False)
-    #plt.show()
     plt.savefig("results/"+xlabelName.strip()+"_chunk"+str(countFileChunk)+".png", bbox_inches="tight")  
 
     plt.close()
@@ -127,11 +125,9 @@ lastBlockTimestamp = "03/01/2009 00:00:00"
 #start of the second chunk
 t2 = datetime.strptime(chunkTimestamp, "%d/%m/%Y %H:%M:%S") + relativedelta(months=+chunkDivision)
 
-#print ("Block count number ; Nonce Arithmetic Mean ; Nonce Shannon Entropy; Nonce Relative Abs Entropy ; LSByte(hex) ; LSByte ; MSB ; Nonce Value")
 
 #START
 for block in blockchain.get_ordered_blocks(bitcoinlocalpath + '/index', start=0):
-#for block in blockchain.get_unordered_blocks():
     blockNumber = blockNumber + 1
 
     #work nicely on timestamps
@@ -157,7 +153,6 @@ for block in blockchain.get_ordered_blocks(bitcoinlocalpath + '/index', start=0)
         saveGraph(Bytes2FileName, "Byte 2 Values", countChunks)
         saveGraph(MSBytesFileName, "MSByte Values", countChunks)
         saveGraphAM(AM_fileName, "Nonce Arithmetic Mean", countChunks)   
-
 
         countChunks = countChunks + 1
         chunkSize = 0
