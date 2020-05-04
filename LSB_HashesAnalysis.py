@@ -32,8 +32,6 @@ from dateutil.relativedelta import relativedelta
 
 def saveInFile(fileName, byte, chunk):
     arq = open('extracted/LSBitsFrom'+ fileName +'_SHA256Addresses_'+str(chunk)+'.data', 'ab')
-#def saveInFile(fileName, byte):
-#    arq = open('extracted/LSBitsFrom'+ fileName +'_SHA256Addresses_.data', 'ab')
     arq.write(byte.to_bytes(1, byteorder = 'little'))
     arq.close()
     return 0
@@ -41,8 +39,6 @@ def saveInFile(fileName, byte, chunk):
 #To save OP_Return or unknown transaction bytes, if needed
 def saveAllBytes(fileName, data, chunk):
     arq = open('extracted/AllBytesFrom'+ fileName +""+str(chunk)+'.data', 'ab')
-#def saveAllBytes(fileName, data):
-#    arq = open('extracted/AllBytesFrom'+ fileName +'.data', 'ab')
     arq.write(data)
     arq.close()
     return 0
