@@ -81,38 +81,6 @@ def check_output_type_setHash_and_setFile(address, output):
     return hashed,arqName
     
 
-#copy of the previous function but returns RIPEMD-160 hash instead of SHA-256
-def check_output_type_setHash160_and_setFile(address, output):
-#Beautiful checking
-    if (str(output.type) == "pubkey"):
-        hashed = address.hash
-        arqName = "pubkey"
-    else:
-        if (str(output.type) == "pubkeyhash"):
-            hashed = address.hash
-            arqName = "pubkeyhash"
-        else:
-            if (str(output.type) == "p2sh"):
-                hashed = address.hash
-                arqName = "p2sh"
-            else:
-                if (str(output.type) == "multisig"):
-                    #Would give a list of sub addresses. We should search it.
-                    hashed = "NOT_DONE_YET"        
-                    arqName = "NOT_DONE_YET"
-                else:
-                    if (output.script.is_return()):
-                        #OP_Return.    skip because all bytes will be saved
-                        hashed = "SKIP"
-                        arqName = "SKIP"
-                    else:                
-                        if ( str(output.type) == "unknown"):
-                            hashed = "SKIP"
-                            arqName = "SKIP"
-
-    return hashed,arqName
-
-
 ##################################################################################### START
 
 blockchain = Blockchain(os.path.expanduser('~/snap/bitcoin-core/common/.bitcoin/blocks'))
@@ -209,8 +177,6 @@ for block in blockchain.get_ordered_blocks('/home/aagiron/snap/bitcoin-core/comm
             for address in output.addresses:
                 #public key specs from here : https://en.bitcoin.it/wiki/Technical_background_of_version_1_Bitcoin_addresses
 
-                #two options: get SHA256 or RIPEMD-160                
-                #ret = check_output_type_setHash160_and_setFile(address,output)
                 ret = check_output_type_setHash_and_setFile(address,output)  
                 hashed = ret[0]
                 fileName = ret[1] 
@@ -282,6 +248,5 @@ for block in blockchain.get_ordered_blocks('/home/aagiron/snap/bitcoin-core/comm
                                 byteP2SHash = 0
                                 countBitsFromP2SH = 0
         countTransaction = countTransaction + 1
-#compute the meansss.
 
 print("End of extracting LSBits. Last chunk:", countChunks, ", Size:", chunkSize ,". Last block:", blockNumber, ", Timestamp:",lastBlockTimestamp)
