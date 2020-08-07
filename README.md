@@ -1,5 +1,5 @@
 # steganalysis-tool-blockchain
-A repository for an attempt to perform steganalysis on the blockchain, based on the nonces and in LSB of hashes.
+A repository for an attempt to perform steganalysis on the blockchain (of bitcoin), based on the nonces and in LSB of hashes.
 
 If you want to cite this for academic purposes, please standby for the proceedings of AIBlock 2020 (or contact me for a preprint).
 
