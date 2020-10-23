@@ -1,7 +1,7 @@
 # steganalysis-tool-blockchain
 A repository for an attempt to perform steganalysis on the blockchain (of bitcoin), based on the nonces and in LSB of hashes.
 
-If you want to cite this for academic purposes, please cite: Giron A.A., Martina J.E., Custódio R. (2020) Bitcoin Blockchain Steganographic Analysis. In: Zhou J. et al. (eds) Applied Cryptography and Network Security Workshops. ACNS 2020. Lecture Notes in Computer Science, vol 12418. Springer, Cham. https://doi.org/10.1007/978-3-030-61638-0_3 
+If you want to use this for academic purposes, please check: Giron A.A., Martina J.E., Custódio R. (2020) Bitcoin Blockchain Steganographic Analysis. In: Zhou J. et al. (eds) Applied Cryptography and Network Security Workshops. ACNS 2020. Lecture Notes in Computer Science, vol 12418. Springer, Cham. https://doi.org/10.1007/978-3-030-61638-0_3 
 
 Two experiments were performed to find evidence of the presence (or not) of steganographic messages in the blockchain (the experiments are explained with details in the paper). Both of the tools used are available here.
 
