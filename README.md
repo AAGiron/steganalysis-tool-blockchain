@@ -8,6 +8,7 @@ Two experiments were performed to find evidence of the presence (or not) of steg
 ## Requirements
 1. Bitcoin's blockchain, which can be obtained at https://bitcoin.org/en/download. 
 2. The blockchain parser library (available at: https://github.com/alecalve/python-bitcoin-blockchain-parser)
+3. The Blocksci parser library (for the clustering branch - under development), at https://github.com/citp/BlockSci
 
 ## How can I use it?
 Change the paths in the code where you download the blockchain. Run it with: python3 Name.py
