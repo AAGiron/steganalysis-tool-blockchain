@@ -6,14 +6,18 @@ If you want to use this for academic purposes, please check: Giron A.A., Martina
 Two experiments were performed to find evidence of the presence (or not) of steganographic messages in the blockchain (the experiments are explained with details in the paper). Both of the tools used are available here.
 
 ## Requirements
-1. Bitcoin's blockchain, which can be obtained at https://bitcoin.org/en/download. 
-2. The blockchain parser library (available at: https://github.com/alecalve/python-bitcoin-blockchain-parser)
+
+Depending on the configuration specified in `setup.py`, you'll need:
+1. The blockchain data (of ethereum or bitcoin), or
+2. The clustering output data (possibly, with the clusterer API installed);
+
+Currently suported clusters: Blocksci API (Bitiodine and Etherclust are planned).
+
+For sequential analysis, a blockchain parser library is required. Available at: https://github.com/alecalve/python-bitcoin-blockchain-parser)
 
 ## How can I use it?
-Change the paths in the code where you download the blockchain. Run it with: python3 Name.py
+Change the paths in `setup.py`. Run it with: python3 steganalysis_manager.py
 
-Depending on the size of the blockchain, it may take a lot of hours to execute completely.
+Depending on the size of the blockchain/cluster set, it may take a lot of hours to execute completely.
 
-You can change the time interval that divides the data into chunks (variable chunkTimeDivision). By default, it divides the blockchain blocks with timestamp interval between 6 months each.
-
-Suggestions are welcome.
+This code is currently under development and revision, not fully tested. Suggestions are welcome.
