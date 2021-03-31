@@ -1,19 +1,17 @@
 #compute statistics from files
-
 import math 
 import numpy as np
 
 
 class Statistics(object):
-	"""docstring for Statistics"""
 	def __init__(self, arg):
 		super(Statistics, self).__init__()
 		self.arg = arg
-	
+
 	def dataToBitstring(self,data):
 		binstring = ""
-		for b in data:
-			bytestring = "{:08b}".format(int(mybyte.hex(),16))
+		for x in data:
+			bytestring = "{0:b}".format(x, 'b')
 			#concat
 			binstring = binstring + bytestring
 		return binstring
@@ -55,3 +53,17 @@ class Statistics(object):
 		pvalue = math.erfc(test / math.sqrt(2))
 		return pvalue
 	
+	def printStatistics(self,analysis, arqName,filem,byteStr="None"):
+		savedData = filem.openByteFile(arqName)
+		pvalue = self.monobitTest(savedData)
+
+		print ("\t\t---- "+ analysis + " ----")
+		if byteStr != "None":
+			print ("\t\t\'Message\':"+ byteStr)
+		print ("\t\tAM:"+str(self.computeAM(savedData)))
+		print ("\t\tEntropy:"+str(self.computeEntropy(savedData)))		
+		if pvalue < 0.01: 
+			monobitresult = 1
+		else:
+			monobitresult = 0
+		print ("\t\tMonobit test (p-value):"+str(pvalue) + ", PASS:" + str(monobitresult))

@@ -14,7 +14,11 @@ class StegSelector(object):
     def startAnalysis(data,ctag):
         print("Overriden Method")
 
+    def getSelectorNameList(self):
+        return ["LSB", "Subliminal", "AddressCombinatorics"]
+
     #Returns the list of available Analyzers implemented
+    #not working
     def getSelectorNameListFromDir(self):
         nameList = []
         for filepath in Path.cwd().iterdir():
@@ -22,6 +26,5 @@ class StegSelector(object):
                 nameList.append(str(filepath).replace(".py",""))
         nameList.append("None")
         return nameList
-    
 
 

@@ -11,19 +11,18 @@
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#####################################################################################################################################
-# Steganography investigation after clustering of bitcoin addresses.
-
-
+####################################################################################################################################
 import sys
 import os
 import importlib
 import blocksci
-import setup
-from stegSelector import StegSelector
+import setup as sp
+import src.graphExporter as ge
+from src.stegSelector import StegSelector
 from src.util import BitiodineCSVReader
-from src.util import EtherclustCSVReader
-
+from src.util import EtherclustCSVReader,UtilFileManager
+from src.nonces import NonceAnalyzer
+from src.lsb import LSB
 
 
 #Class Manager: coordinate the analysis 
@@ -42,7 +41,25 @@ class steganalysisManager:
 #compute list of addresses
 #call the analyzer
 def processBitiodineClusters(self):
-	pass
+	print("Loading Bitiodine clusters...")
+	#no need to open the chain, but only returns a list of tags for later loading
+	bitidioneUtilObject = BitiodineCSVReader(self.clusteringPath)
+		
+	#cluster Data in this case is actually a list of cluster tags in this object.
+	bitidioneUtilObject.readBitiodineCSVAllClusters()
+
+	countClusters = 0
+	#for each cluster tag:	
+	for clsWithAddr in bitidioneUtilObject.clusterLists:
+		countClusters = countClusters +1
+
+		#retrieve the tag
+		ctag = clsWithAddr.pop(0)
+	
+		print("\tAnalyzing Cluster(ctag=" + str(ctag) + ":"+ str(countClusters)+" ...")
+		#for each analyzer (currently only one: LSB)
+		a = LSB("None", self.clusteringName)
+		a.startAnalysis(clsWithAddr,ctag)
 
 #load clusters
 #compute list of addresses
@@ -51,50 +68,97 @@ def processBitiodineClusters(self):
 def processBlocksciClusters(self):
 
 	#select cluster 
-	clusterConfig = input("Inform the absolute path with the name of the " + self.clusteringName + " config file:")	
-	chain = blocksci.Blockchain(clusterConfig)
-	#cm = blocksci.cluster.ClusterManager(self.clusteringPath, chain)
-	print("Starting the Blocksci Cluster Manager to create clusters...")
-	cm = blocksci.cluster.ClusterManager.create_clustering(self.clusteringPath, chain, should_overwrite=True)
+	chain = blocksci.Blockchain(self.clusteringPath+"blocksciConfFile")
 	
+	print("Starting the Blocksci Cluster Manager to create clusters...")
+	cm = blocksci.cluster.ClusterManager.create_clustering(self.clusteringPath, chain, should_overwrite=True)	
 
 	#for now it is all clusters 
-	if "all" in self.clusteringName:		
-		clsterData = cm.clusters()
-	else:									#it should not be a string I think
-		clsterData = cm.cluster_with_address("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa")
+	clsterData = cm.clusters()
 
 	#run through available clusters
 	for c in clsterData:	
-		#print("Hello Cluster c:" + str(c.address_count()))
-		print("\tAnalyzing Cluster(ctag=" + ctag + ":"+ str(countClusters)+" ...")
-		#for each analyzer (currently only one! LSB)
-		for a in getAnalyzer(self):
-			a.dataType = self.clusteringName
-			a.startAnalysis(c.addresses,c.index)
+		
+		print("\tAnalyzing Cluster(ctag=" + c.index + ":"+ str(countAddr)+" ...")		
+		countAddr = c.address_count()
+
+		#for each analyzer (currently only LSB)
+		a = LSB("None", self.clusteringName)
+		a.startAnalysis(c.addresses,c.index)
+
 
 #load cluster CSV file
 #compute list of addresses
 #call the analyzer
 def processEtherClusters(self):
-	pass
+	etherDepositCluster = EtherclustCSVReader(self.clusteringPath)
+		
+	#cluster Data in this case is actually a list of cluster tags in this object.
+	print("Start loading etherclust clusters...")
+	etherDepositCluster.readEtherclustCSVDepositAllClusters()
+	#for each cluster tag:	
+	countClusters = 0
+	for clusterAddresses in etherDepositCluster.clusterLists:
+		countClusters = countClusters +1
+			
+		#retrieve the tag
+		ctag = clsWithAddr.pop(0)
+	
+		print("\tAnalyzing Cluster(ctag=" + ctag + "):"+ str(countClusters)+" ...")
+		#for each analyzer (currently only LSB)
+		a = LSB("None", self.clusteringName)
+		a.startAnalysis(clusterAddresses,ctag)
 
 #load blockchain
 #compute list of (sequential) addresses
 #call the analyzer
-def processAlleCalveParser(self):
-	pass
+def processBlockchainSequentially(self):
+	
+	if self.blockchainName == "bitcoin":
+		pass	#for now, implemented separately in the sequential analysis folder. 
+	elif self.blockchainName == "ethereum":
+		filem = UtilFileManager()
+		listCols = ['nonce']
+		blocksCSV = self.blockchainPath + "blocks.csv"	
+		#get nonces first
+		blocksdata = filem.sequentialCSVReader(blocksCSV,listCols)
+		blocksdata = []
+		listLSByte = []
+		listMSByte = []
+		listNonces = []
+		countChunks = 0
+		countNonces = 0
+		for nonce in blocksdata:
+			countNonces = countNonces + 1			
+			listLSByte.append(bytes.fromhex(nonce[2:])[0])
+			listMSByte.append(bytes.fromhex(nonce[2:])[-1])
+			listNonces.append(bytes.fromhex(nonce[2:]))
+			
+			if (countNonces % 100000 == 0):
+				print("Writing chunk " + str(countChunks) + " of nonces...")
+				NoncesLSBArqName = self.blockchainName + "_LSBytenonces"+"_"+str(countChunks)+".data"
+				NoncesMSBArqName = self.blockchainName + "_MSBytenonces"+"_"+str(countChunks)+".data"
+				NoncesArqName = self.blockchainName + "_nonces"+"_"+str(countChunks)+".data"
+				filem.saveBytes(NoncesLSBArqName,listLSByte)
+				filem.saveBytes(NoncesMSBArqName,listMSByte)
+				filem.saveBytes(NoncesArqName,listNonces)
 
-#instantiate objects for analysis: returns a list
-def getAnalyzer(self):	
-	analyzer = []
-			#set in setup.py
-	for a in configAnalyzerList:
-		if self.selectorType == a:			
-			desiredClass = getattr(importlib.import_module(a.lower()), a) #check case sensitive (module name vs class name)
-			analyzer.append(desiredClass())
-	#beware: it instantiates an objects from a string name.
-	return analyzer
+				#graph exporting
+				ge.saveGraphAM(NoncesArqName,"Nonce Arithmetic Mean", countChunks)
+				ge.saveGraph(NoncesLSBArqName,"LSByte Values",countChunks)
+				ge.saveGraph(NoncesMSBArqName,"MSByte Values",countChunks)
+				countChunks = countChunks + 1				
+
+		#get transactions
+		listCols = ['to_address']
+		transactionsCSV = self.blockchainPath + "transactions.csv"	
+		
+		addressData = UtilFileManager().sequentialCSVReader(transactionsCSV,listCols)
+		
+		#start extraction
+		a = LSB("None", "sequential")
+		a.startAnalysis(addressData,"N/A")
+
 
 #1.
 #open blockchain for parsing
@@ -108,8 +172,8 @@ def loadAndStart(self):
 	elif self.clusteringName == 'etherclust':
 		processEtherClusters(self)
 	else:
-		# Do the default alle calve parsing.
-		processAlleCalveParser(self)
+		# Do the default alle calve/ethereum-etl parsing.
+		processBlockchainSequentially(self)
 
 
 if __name__ == "__main__":
