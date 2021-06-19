@@ -26,3 +26,5 @@ This code is currently under development and revision, not fully tested. Suggest
 ## Publications
 
 Giron A.A., Martina J.E., Custódio R. (2020) Bitcoin Blockchain Steganographic Analysis. In: Zhou J. et al. (eds) Applied Cryptography and Network Security Workshops. ACNS 2020. Lecture Notes in Computer Science, vol 12418. Springer, Cham. https://doi.org/10.1007/978-3-030-61638-0_3 
+
+Giron, A.A.; Martina, J.E.; Custódio, R. Steganographic Analysis of Blockchains. Sensors 2021, 21, 4078. https://doi.org/10.3390/s21124078
